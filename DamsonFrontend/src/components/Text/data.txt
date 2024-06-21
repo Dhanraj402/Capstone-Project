@@ -1,0 +1,152 @@
+import React, { useState, useEffect } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { Modal, Button, Form } from 'react-bootstrap';
+
+
+
+const AddPatientModal = ({ show, handleClose, addPatient }) => {
+    const [newPatient, setNewPatient] = useState({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        address: '',
+        dateOfBirth: ''
+    });
+
+    const handleChange = (e) => {
+        setNewPatient({ ...newPatient, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        
+        const token = localStorage.getItem('healthjwtToken');
+
+        fetch('http://localhost:8080/patients/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(newPatient)
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                alert('Patient information submitted successfully!');
+                
+            })
+            .catch(error => {
+                console.error('There was an error submitting the form!', error);
+            });
+
+         
+        handleClose();
+    };
+
+    return (
+        <Modal show={show} onHide={handleClose}>
+            <Modal.Header closeButton>
+                <Modal.Title>Add Patient</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <Form onSubmit={handleSubmit}>
+                    <Form.Group controlId="formFirstName">
+                        <Form.Label>First Name</Form.Label>
+                        <Form.Control type="text" name="firstName" value={newPatient.firstName} onChange={handleChange} required />
+                    </Form.Group>
+                    <Form.Group controlId="formLastName">
+                        <Form.Label>Last Name</Form.Label>
+                        <Form.Control type="text" name="lastName" value={newPatient.lastName} onChange={handleChange} required />
+                    </Form.Group>
+                    <Form.Group controlId="formEmail">
+                        <Form.Label>Email</Form.Label>
+                        <Form.Control type="email" name="email" value={newPatient.email} onChange={handleChange} required />
+                    </Form.Group>
+                    <Form.Group controlId="formPhone">
+                        <Form.Label>Phone</Form.Label>
+                        <Form.Control type="text" name="phone" value={newPatient.phone} onChange={handleChange} required />
+                    </Form.Group>
+                    <Form.Group controlId="formAddress">
+                        <Form.Label>Address</Form.Label>
+                        <Form.Control type="text" name="address" value={newPatient.address} onChange={handleChange} required />
+                    </Form.Group>
+                    <Form.Group controlId="formDateOfBirth">
+                        <Form.Label>Date of Birth</Form.Label>
+                        <Form.Control type="date" name="dateOfBirth" value={newPatient.dateOfBirth} onChange={handleChange} required />
+                    </Form.Group>
+                    <Button variant="primary" type="submit">
+                        Add Patient
+                    </Button>
+                </Form>
+            </Modal.Body>
+        </Modal>
+    );
+};
+
+const GetAllPatients = () => {
+    const [patients, setPatients] = useState([]);
+    const [showModal, setShowModal] = useState(false);
+
+    useEffect(() => {
+        
+        const fetchPatients = async () => {
+            try {
+                // Make a GET request to the API endpoint
+                const response = await fetch('http://localhost:8080/patients');
+                // Check if the request was successful
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+                // Parse the response body as JSON
+                const data = await response.json();
+                // Update state with the fetched patients
+                setPatients(data);
+            } catch (error) {
+                console.error('Error fetching patients:', error);
+            }
+        };
+
+        // Call the fetchPatients function when the component mounts
+        fetchPatients();
+
+
+        //setPatients(samplePatients);
+    }, []);
+
+    const handleShowModal = () => setShowModal(true);
+    const handleCloseModal = () => setShowModal(false);
+
+    const addPatient = (newPatient) => {
+        setPatients([...patients, { patientId: patients.length + 1, ...newPatient }]);
+    };
+
+    return (
+        <div className="container mt-5">
+            <div className="d-flex justify-content-center align-items-center mb-4">
+                <h1 className="mr-3">Patient List</h1>
+                <button className="btn btn-primary" onClick={handleShowModal}>Add Patient</button>
+            </div>
+            <div className="row">
+                {patients.map(patient => (
+                    <div key={patient.patientId} className="col-md-6">
+                        <div className="card mb-4">
+                            <div className="card-body">
+                                <h5 className="card-title">{patient.firstName} {patient.lastName}</h5>
+                                <p className="card-text"><strong>Email:</strong> {patient.email}</p>
+                                <p className="card-text"><strong>Phone:</strong> {patient.phone}</p>
+                                <p className="card-text"><strong>Address:</strong> {patient.address}</p>
+                                <p className="card-text"><strong>Date of Birth:</strong> {patient.dateOfBirth}</p>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+            <AddPatientModal show={showModal} handleClose={handleCloseModal} addPatient={addPatient} />
+        </div>
+    );
+};
+
+export default GetAllPatients;
