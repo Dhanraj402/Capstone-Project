@@ -33,7 +33,11 @@ public class ClinicDTO {
 
     // Getters and Setters
 
-    public Long getClinicId() {
+    public ClinicDTO() {
+		// TODO Auto-generated constructor stub
+	}
+
+	public Long getClinicId() {
         return clinicId;
     }
 

@@ -19,7 +19,32 @@ public class Appointment {
 
     // getters and setters
 
-    public String getId() {
+    
+    
+	public Appointment(String id, String name, String email, String appointmentDate, LocalTime appointmentTime,
+			String status) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.email = email;
+		this.appointmentDate = appointmentDate;
+		this.appointmentTime = appointmentTime;
+		this.status = status;
+	}
+
+
+	public Appointment() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+
+	public Appointment(String string, String string2, String string3, LocalTime of, String string4) {
+		// TODO Auto-generated constructor stub
+	}
+
+
+	public String getId() {
         return id;
     }
 
